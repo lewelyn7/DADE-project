@@ -104,7 +104,7 @@ def result_func_template(base_func, x_res, x, y):
 # rysowanie wykresu
 def draw_graph(func):
     # ilość pikseli wzdłuż jednej osi układu
-    n = 50
+    n = 250
 
     # macierz wartości Z
     Z = [[0] * n for i in range(n)]
@@ -116,10 +116,10 @@ def draw_graph(func):
         for j in range(n):
             Z[i][j] = func(-1 + i*dx, -1 + j*dy)
 
-    z_min, z_max = -np.abs(Z).max(), np.abs(Z).max()
-    # z_min = 0
+    z_min, z_max = np.abs(Z).min(), np.abs(Z).max()
     print( "z min max")
     print( z_min, z_max)
+    z_min = 0
 
     # z_min = 34
     # z_max = 38
@@ -132,7 +132,7 @@ def draw_graph(func):
     # c = ax.pcolormesh(X, Y, Z, cmap='bwr', vmin=z_min, vmax=z_max)
 
     # kolorowanie od białych
-    c = ax.pcolormesh(X, Y, Z, cmap='coolwarm', vmin=z_min, vmax=z_max)
+    c = ax.pcolormesh(X, Y, Z, cmap='hot', vmin=z_min, vmax=z_max)
 
     # kolorowanie od niebieskich
     # c = ax.pcolormesh(X, Y, Z, cmap='coolwarm', vmin=0.0, vmax=z_max)
@@ -176,14 +176,6 @@ x_result = np.linalg.solve(A, B)
 print(x_result)
 
 result_func = partial(result_func_template, base_functions, x_result)
-
-# www = []
-# for i in np.arange(-1,1,0.1):
-#     for j in np.arange(-1,1,0.1):
-#         www.append(result_func(i,j))
-#     print(www)
-#     www.clear()
-
 
 
 draw_graph(result_func)
