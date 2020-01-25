@@ -88,7 +88,7 @@ def generate_omega(vertex):
 def L_v(g, v):
     # vx_start, vx_end, vy_start, vy_end = omega
     func = partial(lambda g, v, x, y: g(x,y)*v(x,y), g, v)
-    return -(integral(func,-1,0,1,"dx")  + integral(func,0,1,1,"dy") + integral(func, -1, 1, -1, "dx")+ integral(func,-1,1,-1,"dy"))
+    return -(-integral(func,-1,0,1,"dx")  - integral(func,0,1,1,"dy") + integral(func, -1, 1, -1, "dx") + integral(func,-1,1,-1,"dy"))
 
 def g_condition(x,y):
     return (x**2)**(1.0/3)
