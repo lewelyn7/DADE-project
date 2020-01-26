@@ -5,7 +5,7 @@ from functools import partial
 
 
 def cheops(x_top, y_top, x, y):
-    leng = 1
+    leng = 0.5
     if abs(x-x_top) < leng and abs(y-y_top) < leng:
         return (leng-abs(x-x_top))*(leng-abs(y-y_top))
     else:
@@ -15,7 +15,7 @@ def cheops(x_top, y_top, x, y):
 
 
 def integral(xy_function, start, end, var, dwhat):
-    step = 0.01
+    step = 0.005
     sum = 0
     if dwhat == "dx":
         for i in np.arange(start, end, step):
@@ -29,7 +29,7 @@ def integral(xy_function, start, end, var, dwhat):
 def double_integral(xy_function, x_start, x_end, y_start, y_end):
 
     sum = 0
-    step = 0.01
+    step = 0.005
     base_area = step*step
     for x in np.arange(x_start, x_end, step):
         for y in np.arange(y_start, y_end, step):
@@ -39,7 +39,7 @@ def double_integral(xy_function, x_start, x_end, y_start, y_end):
     return sum
 
 def double_derivative(xy_function, var, x ,y):
-    h = 0.01
+    h = 0.005
     if var == "x":
         return (xy_function(x + h, y) - xy_function(x - h, y))/(2*h)
     elif var == "y":
@@ -151,7 +151,12 @@ def plot(func):
 
 
 # xy_vertices = [(-1,1), (0,1), (-1,0), (0,0), (1,0), (-1,-1), (0,-1), (1,-1)]
-xy_vertices = [(-1,1), (-1,0), (-1,-1), (0,-1), (1,-1)]
+# xy_vertices = [(-1,1), (-1,0), (-1,-1), (0,-1), (1,-1)]
+xy_vertices = [(-1,1), (-0.5,1), 
+               (-1, 0.5), (-0.5,0.5),
+               (-1,0), (-0.5,0), 
+               (-1,-0.5), (-0.5,-0.5), (0,-0.5), (0.5,-0.5), (1, -0.5),
+               (-1,-1), (-0.5,-1), (0,-1), (0.5,-1), (1, -1)]
 
 base_functions = base_func_generator(xy_vertices)
 
