@@ -91,6 +91,40 @@ def result_func_template(base_func, x_res, x, y):
         result += base_func[i](x,y)*x_res[i]
     return result
 
+def gauss(A):
+    n = len(A)
+
+    for i in range(0, n):
+        # Search for maximum in this column
+        maxEl = abs(A[i][i])
+        maxRow = i
+        for k in range(i+1, n):
+            if abs(A[k][i]) > maxEl:
+                maxEl = abs(A[k][i])
+                maxRow = k
+
+        # Swap maximum row with current row (column by column)
+        for k in range(i, n+1):
+            tmp = A[maxRow][k]
+            A[maxRow][k] = A[i][k]
+            A[i][k] = tmp
+
+        # Make all rows below this one 0 in current column
+        for k in range(i+1, n):
+            c = -A[k][i]/A[i][i]
+            for j in range(i, n+1):
+                if i == j:
+                    A[k][j] = 0
+                else:
+                    A[k][j] += c * A[i][j]
+
+    # Solve equation Ax=b for an upper triangular matrix A
+    x = [0 for i in range(n)]
+    for i in range(n-1, -1, -1):
+        x[i] = A[i][n]/A[i][i]
+        for k in range(i-1, -1, -1):
+            A[k][n] -= A[k][i] * x[i]
+    return x
 
 # plotting
 def plot(func):
@@ -132,16 +166,10 @@ for i in base_functions:
     col.append(row)
     row = []
 
-A = np.array(col)
+for i in range(len(base_functions)):
+     col[i].append(L_v(g_condition, base_functions[i]))
 
-row = []
-for i in base_functions:
-     row.append(L_v(g_condition, i))
-
-B = np.array(row)
-
-x_result = np.linalg.solve(A, B)
-
+x_result = gauss(col)
 print(x_result)
 
 result_func = partial(result_func_template, base_functions, x_result)
