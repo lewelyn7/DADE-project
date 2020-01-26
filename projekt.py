@@ -3,25 +3,17 @@ import matplotlib.pyplot as plt
 from functools import partial
 
 
-#xp, yp - coordintaes of top of cheops
-#x,y - arguments of function
-def cheops(xp, yp, x, y):
+
+def cheops(x_top, y_top, x, y):
     leng = 1
-    # if(x < -1 or x > 1 or y > 1 or y < -1):
-    #     raise Exception("how dare you", x, y)
-    #     return 0
-    # if(x > 0 and x < 1 and y < 1 and y > 0):
-    #     raise Exception("how dare you", x, y)
-    #     return 0
-    if abs(x-xp) < leng and abs(y-yp) < leng:
-        return (leng-abs(x-xp))*(leng-abs(y-yp))
+    if abs(x-x_top) < leng and abs(y-y_top) < leng:
+        return (leng-abs(x-x_top))*(leng-abs(y-y_top))
     else:
         return 0
 
 
 
-# def double_integral(xy_function, x_start,y_start,x_end,y_end):
-#     print ("ssss")
+
 def integral(xy_function, start, end, var, dwhat):
     step = 0.01
     sum = 0
@@ -55,9 +47,9 @@ def double_derivative(xy_function, var, x ,y):
     else:
         raise Exception("not x nor y exception")
 
-def base_func_generator(xy_vertices):
+def base_func_generator(top_xy_vertices):
     base_functions = []
-    for xy_vertex in xy_vertices:
+    for xy_vertex in top_xy_vertices:
         x , y = xy_vertex
         base_functions.append(partial(cheops, x, y))
     return base_functions
@@ -66,33 +58,32 @@ def base_func_generator(xy_vertices):
 def L_double_integral(xy_func):
     return double_integral(xy_func, -1, 0, -1, 1) + double_integral(xy_func, 0, 1, -1, 0)
 
-def B_u_v(u_func, v_func):
-    # ux_start, ux_end, uy_start, uy_end = u_omega
-    # vx_start, vx_end, vy_start, vy_end = v_omega
+def B_u_v(u_func, v_func, k):
+
     dudx = partial(double_derivative, u_func, "x")
     dudy = partial(double_derivative, u_func, "y")
 
     dvdx = partial(double_derivative, v_func, "x")
     dvdy = partial(double_derivative, v_func, "y")
 
-    first_int = -L_double_integral(partial(lambda k, funca, funcb, x, y: k * funca(x, y)*funcb(x, y), k, dudx, dvdx))
-    second_int = -L_double_integral(partial(lambda k, funca, funcb, x, y: k * funca(x, y)*funcb(x, y), k, dudy, dvdy))
+    first_int = -L_double_integral(partial(lambda k, funca, funcb, x, y: k(x,y) * funca(x, y)*funcb(x, y), k, dudx, dvdx))
+    second_int = -L_double_integral(partial(lambda k, funca, funcb, x, y: k(x,y) * funca(x, y)*funcb(x, y), k, dudy, dvdy))
     return first_int + second_int
 
 
-def generate_omega(vertex):
-    h = 1
-    xp, yp = vertex
-    return (xp-h, xp+h, yp-h, yp+h)
 
 def L_v(g, v):
-    # vx_start, vx_end, vy_start, vy_end = omega
     func = partial(lambda g, v, x, y: g(x,y)*v(x,y), g, v)
     return -(-integral(func,-1,0,1,"dx")  - integral(func,0,1,1,"dy") + integral(func, -1, 1, -1, "dx") + integral(func,-1,1,-1,"dy"))
 
 def g_condition(x,y):
     return (x**2)**(1.0/3)
 
+def k_condition(x,y):
+    if y >= 0.5:
+        return 2
+    else:
+        return 1
 
 def result_func_template(base_func, x_res, x, y):
     result = 0
@@ -101,69 +92,47 @@ def result_func_template(base_func, x_res, x, y):
     return result
 
 
-# rysowanie wykresu
-def draw_graph(func):
-    # ilość pikseli wzdłuż jednej osi układu
+# plotting
+def plot(func):
     n = 250
-
-    # macierz wartości Z
-    Z = [[0] * n for i in range(n)]
-
-    dx = 2.0 / n
-    dy = dx
-
+    value = [[0] * n for i in range(n)]
+    step = 2.0 / n
     for i in range(n):
         for j in range(n):
-            Z[i][j] = func(-1 + i*dx, -1 + j*dy)
+            value[i][j] = func(-1 + i*step, -1 + j*step)
 
-    z_min, z_max = np.abs(Z).min(), np.abs(Z).max()
-    print( "z min max")
-    print( z_min, z_max)
-    z_min = 0
-
-    # z_min = 34
-    # z_max = 38
-    # generate 2 2d grids for the X & Y bounds
+    value_max = np.max(value)
+    value_min = 0
+    print( "z max")
+    print( value_max)
+    
     Y, X = np.meshgrid(np.linspace(-1, 1, n), np.linspace(-1, 1, n))
-
     fig, ax = plt.subplots()
-
-    # kolorowanie bwr
-    # c = ax.pcolormesh(X, Y, Z, cmap='bwr', vmin=z_min, vmax=z_max)
-
-    # kolorowanie od białych
-    c = ax.pcolormesh(X, Y, Z, cmap='hot', vmin=z_min, vmax=z_max)
-
-    # kolorowanie od niebieskich
-    # c = ax.pcolormesh(X, Y, Z, cmap='coolwarm', vmin=0.0, vmax=z_max)
-
-    ax.set_title('no i jest wynik jakis')
-    # set the limits of the plot to the limits of the data
+    c = ax.pcolormesh(X, Y, value, cmap='hot', vmin=value_min, vmax=value_max)
+    ax.set_title('Temperature')
     ax.axis([X.min(), X.max(), Y.min(), Y.max()])
     fig.colorbar(c, ax=ax)
-
     plt.show()
 
-# xy_vertices = [(-1,1), (0,1), (-1,0), (0,0), (1,0), (-1,-1), (0,-1), (1,-1)]
 
+
+# xy_vertices = [(-1,1), (0,1), (-1,0), (0,0), (1,0), (-1,-1), (0,-1), (1,-1)]
 xy_vertices = [(-1,1), (-1,0), (-1,-1), (0,-1), (1,-1)]
-k = 1
 
 base_functions = base_func_generator(xy_vertices)
 
-print(B_u_v(base_functions[0], base_functions[1]))
+print(B_u_v(base_functions[0], base_functions[1], k_condition))
+
 
 row = []
 col = []
 for i in base_functions:
     for j in base_functions:
-        row.append(B_u_v(j,i))
+        row.append(B_u_v(j,i,k_condition))
     col.append(row)
     row = []
 
 A = np.array(col)
-
-
 
 row = []
 for i in base_functions:
@@ -177,5 +146,4 @@ print(x_result)
 
 result_func = partial(result_func_template, base_functions, x_result)
 
-
-draw_graph(result_func)
+plot(result_func)
